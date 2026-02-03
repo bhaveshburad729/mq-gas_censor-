@@ -13,7 +13,7 @@ const char* password = "YOUR_WIFI_PASSWORD";
 // ==========================================
 // IMPORTANT: If running locally, use your computer's IP address (e.g., http://192.168.1.5:8000)
 // Do NOT use localhost/127.0.0.1, as that refers to the ESP32 itself
-const char* serverUrl = "http://192.168.X.X:8000/api/v1/ingest"; 
+const char* serverUrl = "http://10.156.255.83:8000/api/v1/ingest"; 
 
 // ==========================================
 // 3. DEVICE IDENTITY
@@ -26,7 +26,7 @@ const char* deviceToken = "YOUR_SECRET_TOKEN"; // Must match the device's token
 // ==========================================
 // Set to true to generate fake random data (useful for testing without sensors)
 // Set to false to read from actual pins
-const bool SIMULATION_MODE = true; 
+const bool SIMULATION_MODE = false; 
 
 // Pin Definitions (Adjust as needed)
 #define PIN_MQ135 34    // Analog Input

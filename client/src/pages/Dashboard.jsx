@@ -15,7 +15,7 @@ const Dashboard = () => {
 
     const fetchDevices = async () => {
         try {
-            const response = await axios.get("http://localhost:8000/api/v1/devices/");
+            const response = await axios.get(`${import.meta.env.VITE_API_URL}/api/v1/devices/`);
             setDevices(response.data);
         } catch (error) {
             console.error("Error fetching devices:", error);
@@ -27,7 +27,7 @@ const Dashboard = () => {
     const handleAddDevice = async (e) => {
         e.preventDefault();
         try {
-            await axios.post("http://localhost:8000/api/v1/devices/", {
+            await axios.post(`${import.meta.env.VITE_API_URL}/api/v1/devices/`, {
                 device_id: newDeviceId
             });
             setShowAddModal(false);

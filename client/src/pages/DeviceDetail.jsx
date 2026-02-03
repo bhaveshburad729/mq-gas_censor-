@@ -22,7 +22,7 @@ const DeviceDetail = () => {
 
     const fetchDeviceInfo = async () => {
         try {
-            const response = await axios.get(`http://localhost:8000/api/v1/devices/${id}`);
+            const response = await axios.get(`${import.meta.env.VITE_API_URL}/api/v1/devices/${id}`);
             setDevice(response.data);
         } catch (error) {
             console.error("Error fetching device info:", error);
@@ -31,7 +31,7 @@ const DeviceDetail = () => {
 
     const fetchData = async () => {
         try {
-            const response = await axios.get(`http://localhost:8000/api/v1/devices/${id}/readings?limit=20`);
+            const response = await axios.get(`${import.meta.env.VITE_API_URL}/api/v1/devices/${id}/readings?limit=20`);
             const data = response.data.reverse();
             setReadings(data);
             if (data.length > 0) {
