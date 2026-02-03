@@ -1,0 +1,55 @@
+@import "tailwindcss";
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+
+@theme {
+  --color-background: #f8f9fa;
+  --color-surface: #ffffff;
+  --color-primary: #2d3436;
+  --color-secondary: #636e72;
+  --color-accent: #00b894;
+  --color-warning: #fdcb6e;
+  --color-danger: #ff7675;
+  --color-safe: #55efc4;
+  --color-border: #dfe6e9;
+
+  --font-sans: 'Inter', sans-serif;
+
+  --shadow-card: 0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 2px 4px -1px rgba(0, 0, 0, 0.03);
+  --shadow-premium: 0 10px 15px -3px rgba(0, 0, 0, 0.05), 0 4px 6px -2px rgba(0, 0, 0, 0.025);
+}
+
+@layer base {
+  body {
+    background-color: var(--color-background);
+    color: var(--color-primary);
+    font-family: var(--font-sans);
+  }
+}
+
+@layer components {
+  .btn-primary {
+    @apply px-4 py-2 bg-primary text-white rounded-lg hover:bg-black transition-colors duration-200 font-medium shadow-sm active:scale-95;
+  }
+
+  .card-premium {
+    @apply bg-white rounded-xl border border-border shadow-card hover:shadow-premium transition-shadow duration-300;
+  }
+
+  .input-field {
+    @apply w-full px-4 py-2 rounded-lg border border-border focus:border-primary focus:ring-1 focus:ring-primary outline-none transition-all duration-200 bg-white;
+  }
+}
+
+@layer components {
+  .btn-primary {
+    @apply px-4 py-2 bg-primary text-white rounded-lg hover:bg-black transition-colors duration-200 font-medium shadow-sm active:scale-95;
+  }
+
+  .card-premium {
+    @apply bg-white rounded-xl border border-border shadow-card hover:shadow-premium transition-shadow duration-300;
+  }
+
+  .input-field {
+    @apply w-full px-4 py-2 rounded-lg border border-border focus:border-primary focus:ring-1 focus:ring-primary outline-none transition-all duration-200 bg-white;
+  }
+}
