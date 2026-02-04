@@ -1,4 +1,4 @@
-from sqlalchemy import Column, Integer, String, Float, DateTime, ForeignKey, Boolean
+from sqlalchemy import Column, Integer, String, Float, DateTime, ForeignKey, Boolean, JSON
 from sqlalchemy.orm import relationship
 from .database import Base
 from datetime import datetime
@@ -10,6 +10,7 @@ class User(Base):
     email = Column(String, unique=True, index=True)
     full_name = Column(String, nullable=True)
     phone_number = Column(String, nullable=True)
+    preferences = Column(JSON, default={})
     hashed_password = Column(String)
     
     devices = relationship("Device", back_populates="owner")

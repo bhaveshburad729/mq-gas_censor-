@@ -20,7 +20,18 @@ def update_user_me(user_update: schemas.UserUpdate, current_user: models.User = 
         user.full_name = user_update.full_name
     if user_update.phone_number is not None:
         user.phone_number = user_update.phone_number
-        
+    if user_update.preferences is not None:
+        # Merge policies or full replace? 
+        # Typically simple replacement or dictionary merge. 
+        # For simplicity, let's do a merge if existing is dict
+        current_prefs = user.preferences or {}
+        if isinstance(current_prefs, dict):
+            # Shallow merge
+            updated_prefs = {**current_prefs, **user_update.preferences}
+            user.preferences = updated_prefs
+        else:
+            user.preferences = user_update.preferences
+            
     db.commit()
     db.refresh(user)
     return user

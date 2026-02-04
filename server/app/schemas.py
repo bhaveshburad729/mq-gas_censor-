@@ -1,5 +1,5 @@
 from pydantic import BaseModel
-from typing import List, Optional
+from typing import List, Optional, Dict, Any
 from datetime import datetime
 
 # User Schemas
@@ -12,11 +12,13 @@ class UserCreate(UserBase):
 class UserUpdate(BaseModel):
     full_name: Optional[str] = None
     phone_number: Optional[str] = None
+    preferences: Optional[Dict[str, Any]] = None
 
 class UserResponse(UserBase):
     id: int
     full_name: Optional[str] = None
     phone_number: Optional[str] = None
+    preferences: Optional[Dict[str, Any]] = None
     
     class Config:
         from_attributes = True

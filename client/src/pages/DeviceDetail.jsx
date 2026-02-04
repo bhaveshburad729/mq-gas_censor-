@@ -2,8 +2,11 @@ import { useState, useEffect } from "react";
 import { useParams } from "react-router-dom";
 import axios from "axios";
 import { AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
-import { Thermometer, Droplets, Wind, Activity, Key, Copy, Check } from "lucide-react";
+import { Thermometer, Droplets, Wind, Activity, Key, Copy, Check, Edit3 } from "lucide-react";
+import * as LucideIcons from "lucide-react";
 import { clsx } from 'clsx';
+import { useAuth } from "../context/AuthContext";
+import IconPickerSidebar from "../components/IconPickerSidebar";
 
 const DeviceDetail = () => {
     const { id } = useParams();
@@ -12,6 +15,11 @@ const DeviceDetail = () => {
     const [device, setDevice] = useState(null);
     const [loading, setLoading] = useState(true);
     const [copied, setCopied] = useState(false);
+
+    // Icon customization state
+    const { user, updateUser } = useAuth();
+    const [pickerOpen, setPickerOpen] = useState(false);
+    const [activeSensor, setActiveSensor] = useState(null); // 'Gas', 'Temperature', 'Humidity', 'Distance'
 
     useEffect(() => {
         fetchData();
@@ -60,17 +68,64 @@ const DeviceDetail = () => {
         }
     };
 
-    const SensorCard = ({ title, value, unit, icon: Icon, colorClass }) => (
-        <div className="card-premium p-6 flex flex-col items-center justify-center text-center">
-            <div className={clsx("p-4 rounded-full mb-4", colorClass)}>
-                <Icon size={32} />
+    const handleSensorClick = (sensorType) => {
+        setActiveSensor(sensorType);
+        setPickerOpen(true);
+    };
+
+    const handleIconSelect = async (iconName) => {
+        if (!activeSensor) return;
+
+        // Optimistically update
+        const newPreferences = {
+            ...(user.preferences || {}),
+            [`icon_${activeSensor}`]: iconName
+        };
+
+        // Save to backend
+        try {
+            await axios.put(`${import.meta.env.VITE_API_URL}/api/v1/users/me`, {
+                preferences: newPreferences
+            });
+            updateUser({ preferences: newPreferences });
+        } catch (error) {
+            console.error("Failed to save icon preference", error);
+            alert("Failed to save customization.");
+        }
+    };
+
+    const getSensorIcon = (sensorType, DefaultIcon) => {
+        if (user?.preferences?.[`icon_${sensorType}`]) {
+            const IconName = user.preferences[`icon_${sensorType}`];
+            return LucideIcons[IconName] || DefaultIcon;
+        }
+        return DefaultIcon;
+    };
+
+    const SensorCard = ({ title, value, unit, defaultIcon: DefaultIcon, colorClass, type }) => {
+        const Icon = getSensorIcon(type, DefaultIcon);
+
+        return (
+            <div
+                onClick={() => handleSensorClick(type)}
+                className="card-premium p-6 flex flex-col items-center justify-center text-center cursor-pointer hover:ring-2 hover:ring-primary/20 transition-all group relative"
+            >
+                <div className="absolute top-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity">
+                    <div className="p-1.5 bg-gray-100 rounded-full text-gray-400 hover:text-primary hover:bg-white shadow-sm">
+                        <Edit3 size={14} />
+                    </div>
+                </div>
+
+                <div className={clsx("p-4 rounded-full mb-4 transition-transform group-hover:scale-110 duration-300", colorClass)}>
+                    <Icon size={32} />
+                </div>
+                <h3 className="text-secondary text-sm font-medium uppercase tracking-wide mb-1">{title}</h3>
+                <div className="text-3xl font-bold text-primary">
+                    {value ?? "--"} <span className="text-lg text-secondary font-normal">{unit}</span>
+                </div>
             </div>
-            <h3 className="text-secondary text-sm font-medium uppercase tracking-wide mb-1">{title}</h3>
-            <div className="text-3xl font-bold text-primary">
-                {value ?? "--"} <span className="text-lg text-secondary font-normal">{unit}</span>
-            </div>
-        </div>
-    );
+        );
+    };
 
     const CustomTooltip = ({ active, payload, label }) => {
         if (active && payload && payload.length) {
@@ -140,31 +195,44 @@ const DeviceDetail = () => {
                     title="Gas Level"
                     value={latest?.gas ? Number(latest.gas).toFixed(0) : null}
                     unit="ppm"
-                    icon={Wind}
+                    defaultIcon={Wind}
+                    type="Gas"
                     colorClass="bg-gradient-to-br from-gray-50 to-gray-100 text-gray-700 ring-1 ring-gray-200/50"
                 />
                 <SensorCard
                     title="Temperature"
                     value={latest?.temperature ? Number(latest.temperature).toFixed(1) : null}
                     unit="°C"
-                    icon={Thermometer}
+                    defaultIcon={Thermometer}
+                    type="Temperature"
                     colorClass="bg-gradient-to-br from-orange-50 to-orange-100 text-orange-600 ring-1 ring-orange-200/50"
                 />
                 <SensorCard
                     title="Humidity"
                     value={latest?.humidity ? Number(latest.humidity).toFixed(1) : null}
                     unit="%"
-                    icon={Droplets}
+                    defaultIcon={Droplets}
+                    type="Humidity"
                     colorClass="bg-gradient-to-br from-blue-50 to-blue-100 text-blue-600 ring-1 ring-blue-200/50"
                 />
                 <SensorCard
                     title="Distance"
                     value={latest?.distance ? Number(latest.distance).toFixed(1) : null}
                     unit="cm"
-                    icon={Activity}
+                    defaultIcon={Activity}
+                    type="Distance"
                     colorClass="bg-gradient-to-br from-purple-50 to-purple-100 text-purple-600 ring-1 ring-purple-200/50"
                 />
             </div>
+
+            {/* Icon Picker Sidebar */}
+            <IconPickerSidebar
+                isOpen={pickerOpen}
+                onClose={() => setPickerOpen(false)}
+                sensorType={activeSensor}
+                currentIcon={user?.preferences?.[`icon_${activeSensor}`]}
+                onSelectIcon={handleIconSelect}
+            />
 
             {/* Charts */}
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
