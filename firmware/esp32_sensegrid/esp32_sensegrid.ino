@@ -15,7 +15,7 @@ const char* password = "YOUR_WIFI_PASSWORD";
 // IMPORTANT: If running locally, use your computer's IP address (e.g., http://192.168.1.5:8000)
 // Do NOT use localhost/127.0.0.1, as that refers to the ESP32 itself
 // IMPORTANT: Use the Render URL now.
-const char* serverUrl = "https://mq-gas-censor-sensegrid-api.onrender.com/api/v1/ingest"; 
+const char* serverUrl = "https://mq-gas-censor-sensegrid-api-tronix.onrender.com/api/v1/ingest"; 
 
 // ... (existing code, ensure imports are there or added if needed, wait, I need to see if I can add the secure client in the loop or setup)
 
