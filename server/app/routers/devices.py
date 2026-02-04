@@ -51,3 +51,18 @@ def get_device_readings(device_id: str, limit: int = 20, current_user: models.Us
     # Return reversed to show chronological order in graphs if needed, but API usually sends latest first or user sorts. 
     # Let's return latest first (descending) as queried. Frontend can reverse.
     return readings
+
+@router.delete("/{device_id}", status_code=status.HTTP_204_NO_CONTENT)
+def delete_device(device_id: str, current_user: models.User = Depends(auth.get_current_user), db: Session = Depends(database.get_db)):
+    # Verify ownership
+    device = db.query(models.Device).filter(models.Device.device_id == device_id, models.Device.owner_id == current_user.id).first()
+    if not device:
+        raise HTTPException(status_code=404, detail="Device not found")
+    
+    # Delete associated readings first (optional if cascade is set, but good for safety)
+    db.query(models.SensorData).filter(models.SensorData.device_id == device_id).delete()
+    
+    # Delete the device
+    db.delete(device)
+    db.commit()
+    return None
