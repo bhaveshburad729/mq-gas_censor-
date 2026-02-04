@@ -5,6 +5,7 @@ import Login from "./pages/Login";
 import Register from "./pages/Register";
 import Dashboard from "./pages/Dashboard";
 import DeviceDetail from "./pages/DeviceDetail";
+import Profile from "./pages/Profile";
 
 const ProtectedRoute = ({ children }) => {
   const { user, loading } = useAuth();
@@ -28,6 +29,7 @@ const AppRoutes = () => {
         <Route path="/" element={<Dashboard />} />
         <Route path="/devices" element={<Navigate to="/" replace />} /> {/* Re-use dashboard for now */}
         <Route path="/devices/:id" element={<DeviceDetail />} />
+        <Route path="/profile" element={<Profile />} />
       </Route>
 
       <Route path="*" element={<Navigate to="/" replace />} />

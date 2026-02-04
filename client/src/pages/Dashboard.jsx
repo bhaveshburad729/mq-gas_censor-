@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import axios from "axios";
-import { Plus, Server, Activity, AlertTriangle, CheckCircle, XCircle } from "lucide-react";
+import { Plus, Server, Activity, AlertTriangle, CheckCircle, XCircle, Trash2 } from "lucide-react";
 import { Link } from "react-router-dom";
 
 const Dashboard = () => {
@@ -35,6 +35,23 @@ const Dashboard = () => {
             fetchDevices();
         } catch (error) {
             alert("Failed to add device. ID might be taken.");
+        }
+    };
+
+    const handleDeleteDevice = async (e, deviceId) => {
+        e.preventDefault(); // Prevent link navigation
+        e.stopPropagation(); // Stop event bubbling
+        
+        if (!window.confirm(`Are you sure you want to delete device ${deviceId}? This cannot be undone.`)) {
+            return;
+        }
+
+        try {
+            await axios.delete(`${import.meta.env.VITE_API_URL}/api/v1/devices/${deviceId}`);
+            fetchDevices(); // Refresh list
+        } catch (error) {
+            console.error("Error deleting device:", error);
+            alert("Failed to delete device.");
         }
     };
 
@@ -73,9 +90,18 @@ const Dashboard = () => {
                                 <div className="p-3 bg-gray-50 rounded-lg group-hover:bg-primary group-hover:text-white transition-colors duration-300">
                                     <Server size={24} />
                                 </div>
-                                <span className="text-xs font-mono bg-gray-100 px-2 py-1 rounded text-secondary">
-                                    {device.device_id}
-                                </span>
+                                <div className="flex flex-col items-end space-y-2">
+                                    <span className="text-xs font-mono bg-gray-100 px-2 py-1 rounded text-secondary">
+                                        {device.device_id}
+                                    </span>
+                                    <button 
+                                        onClick={(e) => handleDeleteDevice(e, device.device_id)}
+                                        className="text-gray-400 hover:text-red-500 transition-colors p-1"
+                                        title="Delete Device"
+                                    >
+                                        <Trash2 size={16} />
+                                    </button>
+                                </div>
                             </div>
 
                             <h3 className="text-lg font-bold text-primary mb-1">ESP32 Sensor Node</h3>

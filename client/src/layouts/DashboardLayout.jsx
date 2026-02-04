@@ -1,6 +1,6 @@
 import { Outlet, useNavigate, useLocation } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
-import { LogOut, LayoutDashboard, Server } from "lucide-react";
+import { LogOut, LayoutDashboard, Server, User } from "lucide-react";
 import { clsx } from 'clsx';
 
 const DashboardLayout = () => {
@@ -43,6 +43,7 @@ const DashboardLayout = () => {
                 <nav className="flex-1 px-4 space-y-2">
                     <NavItem to="/" icon={LayoutDashboard} label="Dashboard" />
                     <NavItem to="/devices" icon={Server} label="Devices" />
+                    <NavItem to="/profile" icon={User} label="Profile" />
                 </nav>
 
                 <div className="p-4 border-t border-border">
