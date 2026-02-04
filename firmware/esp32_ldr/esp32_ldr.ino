@@ -48,9 +48,9 @@ void setup() {
   pinMode(PIN_LDR_DIGITAL, INPUT);
   
   // Auto bulb pin setup (PWM)
-  // ESP32 LEDC (PWM) Setup
-  ledcSetup(0, 5000, 10); // Channel 0, 5kHz, 10-bit resolution (0-1023)
-  ledcAttachPin(PIN_AUTO_BULB, 0);
+  // ESP32 LEDC (PWM) Setup for Core v3.0+
+  // ledcAttach(pin, frequency, resolution_bits);
+  ledcAttach(PIN_AUTO_BULB, 5000, 10); 
 
   // Connect to WiFi
   WiFi.begin(ssid, password);
@@ -78,11 +78,11 @@ void loop() {
     // Auto Bulb Logic
     // If Digital is HIGH (Dark/Active) -> Auto Bulb ON with brightness
     // If Digital is LOW (Light/Inactive) -> Auto Bulb OFF
-    // Note: Adjust HIGH/LOW logic based on your specific LDR module's behavior
     if (digitalVal == HIGH) {
-      ledcWrite(0, analog10bit); 
+      // ledcWrite(pin, duty);
+      ledcWrite(PIN_AUTO_BULB, analog10bit); 
     } else {
-      ledcWrite(0, 0); 
+      ledcWrite(PIN_AUTO_BULB, 0); 
     }
 
     // --- B. SEND TELEMETRY (Periodic) ---
