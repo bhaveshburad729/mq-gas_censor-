@@ -4,6 +4,7 @@ import DashboardLayout from "./layouts/DashboardLayout";
 import Login from "./pages/Login";
 import Register from "./pages/Register";
 import Dashboard from "./pages/Dashboard";
+import Devices from "./pages/Devices";
 import DeviceDetail from "./pages/DeviceDetail";
 import Profile from "./pages/Profile";
 
@@ -27,7 +28,7 @@ const AppRoutes = () => {
 
       <Route element={<ProtectedRoute><DashboardLayout /></ProtectedRoute>}>
         <Route path="/" element={<Dashboard />} />
-        <Route path="/devices" element={<Navigate to="/" replace />} /> {/* Re-use dashboard for now */}
+        <Route path="/devices" element={<Devices />} />
         <Route path="/devices/:id" element={<DeviceDetail />} />
         <Route path="/profile" element={<Profile />} />
       </Route>
