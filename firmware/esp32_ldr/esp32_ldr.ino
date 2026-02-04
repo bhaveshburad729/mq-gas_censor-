@@ -35,10 +35,10 @@ const char* deviceToken = "YOUR_SECRET_TOKEN"; // Find this in "View Details" on
 // 5. GLOBAL VARIABLES
 // ==========================================
 unsigned long lastTelemetryTime = 0;
-const long telemetryInterval = 5000; // Send data every 5 seconds
+const long telemetryInterval = 1000; // Send data every 1 second (Faster Updates)
 
 unsigned long lastPollTime = 0;
-const long pollInterval = 2000;      // Poll for manual outputs every 2 seconds
+const long pollInterval = 400;      // Poll for manual outputs every 0.4 seconds (Faster Response)
 
 void setup() {
   Serial.begin(115200);

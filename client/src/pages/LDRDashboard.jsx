@@ -19,7 +19,7 @@ const LDRDashboard = ({ id, device }) => {
         const interval = setInterval(() => {
             fetchReadings();
             fetchOutputs(); // Poll outputs too for sync
-        }, 2000);
+        }, 1000); // 1 second polling for faster UI updates
         return () => clearInterval(interval);
     }, [id]);
 
