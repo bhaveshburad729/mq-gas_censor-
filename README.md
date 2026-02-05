@@ -1,73 +1,135 @@
-# Indianiiot - IoT Gas Monitoring System
+# 🌍 SenseGrid - Combined Gas & LDR Monitoring System
 
-Indianiiot is a comprehensive IoT solution designed for real-time monitoring of air quality and gas levels. It combines a robust hardware sensor network with a modern web dashboard to provide actionable insights into environmental conditions.
+Welcome to the **SenseGrid** project! This is a comprehensive IoT Dashboard for monitoring Air Quality (Gas) and Lighting (LDR) in real-time.
 
-## 🚀 Features
+This guide is designed to help new teammates set up the project from scratch on their local machines, even without internet access (Offline/LAN Mode).
 
-- **Real-time Monitoring**: Live streaming of gas sensor data (MQ series) from ESP32 devices.
-- **Interactive Dashboard**: Visualizes air quality metrics with dynamic charts and heatmaps.
-- **Alert System**: Configurable alarms for hazardous gas levels.
-- **Device Management**: Register and manage multiple sensor nodes.
-- **Historical Data**: Store and analyze long-term environmental trends.
+---
 
-## 🛠️ Tech Stack
+## 📋 Prerequisites
+Before starting, ensure you have the following installed:
+1.  **Node.js** (v18+) -> [Download](https://nodejs.org/)
+2.  **Python** (v3.10+) -> [Download](https://www.python.org/)
+3.  **PostgreSQL** (v15+) -> [Download](https://www.postgresql.org/)
+4.  **Arduino IDE** (for ESP32) -> [Download](https://www.arduino.cc/en/software)
+5.  **Git** -> [Download](https://git-scm.com/)
 
-- **Hardware**: ESP32 microcontroller, MQ Gas Sensors
-- **Frontend**: React, Vite, TailwindCSS, Recharts
-- **Backend**: Python, FastAPI, SQLAlchemy
-- **Database**: PostgreSQL (Production) / SQLite (Dev)
+---
 
-## 📂 Project Structure
+## ⚙️ Step 1: Database Setup
+We use PostgreSQL. You need to create a local database and user.
 
-- **`/client`**: React-based frontend application.
-- **`/server`**: FastAPI backend server handling API requests and database operations.
-- **`/firmware`**: C++ firmware for ESP32 devices (Arduino framework).
+1.  Open **pgAdmin 4** (or standard SQL terminal).
+2.  Create a user (Role):
+    *   **Name:** `postgres` (or as configured in `.env`)
+    *   **Password:** `Bhavesh729` (Important: Must match `.env`!)
+    *   **Privileges:** Superuser (or Can Login + Create DB).
+3.  Create a Database:
+    *   **Name:** `sensegrid`
+    *   **Owner:** `postgres`
 
-## ⚡ Quick Start
+---
 
-### Prerequisites
-- Node.js & npm
-- Python 3.8+
-- PostgreSQL (optional for dev, required for prod)
+## � Step 2: Backend Setup (Server)
+The backend is built with **FastAPI**.
 
-### 1. Backend Setup
-Navigate to the server directory and set up the Python environment:
+1.  Open a terminal in the root folder.
+2.  Navigate to server:
+    ```sh
+    cd server
+    ```
+3.  (Optional but Recommended) Create a Virtual Environment:
+    ```sh
+    python -m venv myenv
+    myenv\Scripts\activate
+    ```
+4.  Install Dependencies:
+    ```sh
+    pip install -r requirements.txt
+    ```
+5.  **Configure Environment**:
+    *   Open `server/.env`.
+    *   Ensure `DATABASE_URL` points to your local DB:
+        ```ini
+        DATABASE_URL=postgresql://postgres:Bhavesh729@localhost:5432/sensegrid
+        ```
+6.  **Run the Server**:
+    ```sh
+    # NOTE: Run this from the 'server' directory!
+    uvicorn app.main:app --host 0.0.0.0 --port 8000 --reload
+    ```
+    *Build Output: `Application startup complete.`*
 
-```bash
-cd server
-python -m venv myenv
-# Windows
-.\myenv\Scripts\activate
-# Linux/Mac
-# source myenv/bin/activate
+---
 
-pip install -r requirements.txt
+## 🎨 Step 3: Frontend Setup (Client)
+The frontend is built with **React + Vite**.
+
+1.  Open a **NEW** terminal.
+2.  Navigate to client:
+    ```sh
+    cd client
+    ```
+3.  Install Dependencies:
+    ```sh
+    npm install
+    ```
+4.  **Network Configuration (Crucial for LAN Access)**:
+    *   Find your computer's Local IP Address:
+        *   Windows: Run `ipconfig` in CMD (Look for `IPv4 Address`, e.g., `192.168.1.7`).
+    *   Open `client/.env`:
+        *   Update `VITE_API_URL` to match your IP:
+            ```ini
+            VITE_API_URL=http://192.168.1.7:8000
+            ```
+5.  **Run the Client**:
+    ```sh
+    npm run dev -- --host
+    ```
+    *Terminal will show: `Network: http://192.168.1.7:5173`*
+
+---
+
+## �️ Step 4: Connectivity (Firewall Rules)
+**IMPORTANT:** If you want to access this from your phone or another laptop, you **MUST** allow the ports through the Windows Firewall.
+
+Run **Powershell as Administrator** and execute:
+```powershell
+netsh advfirewall firewall add rule name="Allow SenseGrid Backend" dir=in action=allow protocol=TCP localport=8000
+netsh advfirewall firewall add rule name="Allow SenseGrid Frontend" dir=in action=allow protocol=TCP localport=5173
 ```
 
-Run the server:
-```bash
-uvicorn app.main:app --reload
-```
-The API will be available at `http://localhost:8000`. API Docs at `http://localhost:8000/docs`.
+---
 
-### 2. Frontend Setup
-Navigate to the client directory and install dependencies:
+## � Step 5: Hardware Setup (ESP32)
+1.  Open `firmware/esp32_combined/esp32_combined.ino` in Arduino IDE.
+2.  Install Required Libraries (Sketch -> Include Library -> Manage Libraries):
+    *   `WiFi` (Standard)
+    *   `HTTPClient` (Standard)
+    *   `ArduinoJson` by Benoit Blanchon
+    *   `NewPing` (for Ultrasonic)
+3.  **Update Configuration in Code**:
+    *   `ssid`: Your WiFi Name.
+    *   `password`: Your WiFi Password.
+    *   `apiBase`: **MUST** match your computer's IP:
+        ```cpp
+        const char* apiBase = "http://192.168.1.7:8000/api/v1"; 
+        ```
+4.  Upload to ESP32.
 
-```bash
-cd client
-npm install
-```
+---
 
-Start the development server:
-```bash
-npm run dev
-```
-The dashboard will be available at `http://localhost:5173`.
+## ❓ Troubleshooting
+*   **"Module not found: main"**: Make sure you run `uvicorn app.main:app`, NOT `uvicorn main:app`.
+*   **Phone can't connect**:
+    *   Are you on the same WiFi?
+    *   Did you run the Firewall commands?
+    *   Is the IP address correct? (Check `ipconfig` again, it changes sometimes!).
+*   **Database Error**: Check if PostgreSQL service is running and password in `.env` matches.
 
-### 3. Hardware Setup
-Flash the firmware located in `firmware/esp32_sensegrid` to your ESP32 device using the Arduino IDE or PlatformIO. Ensure your `wifi_config.h` (if applicable) or code credentials are updated.
+---
 
-## 📖 detailed Guides
-
-- [Setup Guide](./SETUP_GUIDE.md) - Detailed database and environment configuration.
-- [Deployment Guide](./DEPLOYMENT_GUIDE.md) - Instructions for deploying to production.
+### 🚀 Usage
+Once everything is running:
+*   **Dashboard**: `http://192.168.1.7:5173` (Open on any device on the network)
+*   **API Docs**: `http://localhost:8000/docs`

@@ -10,7 +10,57 @@ const char* ssid = "YOUR_WIFI_SSID";
 const char* password = "YOUR_WIFI_PASSWORD";
 
 // API Base URL (Render)
-const char* apiBase = "https://mq-gas-censor-sensegrid-api-tronix.onrender.com/api/v1";
+const char* apiBase = "http://192.168.1.7:8000/api/v1";
+
+// ... (rest of config)
+
+// -----------------------------------------------------
+// HELPER: HTTP POST
+// -----------------------------------------------------
+void postData(const char* endpoint, String payload) {
+  WiFiClient client; // HTTP ONLY (Not Secure)
+  HTTPClient http;
+
+  String url = String(apiBase) + endpoint;
+  
+  // Timeout settings
+  client.setTimeout(10000); 
+
+  if (http.begin(client, url)) {
+    http.addHeader("Content-Type", "application/json");
+    http.addHeader("Device-Token", deviceToken);
+    
+    int code = http.POST(payload);
+    if (code > 0) {
+      Serial.printf("POST %s -> %d\n", endpoint, code);
+    } else {
+      Serial.printf("POST %s Failed: %s\n", endpoint, http.errorToString(code).c_str());
+    }
+    http.end();
+  } else {
+    Serial.printf("Failed to connect to %s\n", url.c_str());
+  }
+}
+
+// -----------------------------------------------------
+// TASK: POLL OUTPUTS
+// Endpoint: /api/v1/ldr/{id}/outputs
+// -----------------------------------------------------
+void pollOutputs() {
+  WiFiClient client; // HTTP ONLY
+  HTTPClient http;
+
+  String url = String(apiBase) + "/ldr/" + String(deviceId) + "/outputs";
+
+  if (http.begin(client, url)) {
+    http.addHeader("Device-Token", deviceToken);
+    int code = http.GET();
+    
+    if (code == 200) {
+      DynamicJsonDocument doc(2048);
+      deserializeJson(doc, http.getString());
+      // ... same logic
+
 
 // ==========================================
 // 2. DEVICE CONFIGURATION
