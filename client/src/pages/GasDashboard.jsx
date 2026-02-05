@@ -1,13 +1,14 @@
 import { useState, useEffect } from "react";
 import axios from "axios";
 import { AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
-import { Thermometer, Droplets, Wind, Activity, Key, Copy, Check, Edit3 } from "lucide-react";
+import { Thermometer, Droplets, Wind, Activity, Key, Copy, Check, Edit3, ArrowUpRight } from "lucide-react";
 import * as LucideIcons from "lucide-react";
 import { clsx } from 'clsx';
 import { useAuth } from "../context/AuthContext";
 import IconPickerSidebar from "../components/IconPickerSidebar";
+import { motion } from "framer-motion";
 
-const GasDashboard = ({ id, device }) => { // Accept id and device as props
+const GasDashboard = ({ id, device }) => {
     const [readings, setReadings] = useState([]);
     const [latest, setLatest] = useState(null);
     const [loading, setLoading] = useState(true);
@@ -49,9 +50,9 @@ const GasDashboard = ({ id, device }) => { // Accept id and device as props
 
     const getStatusColor = (status) => {
         switch (status) {
-            case "DANGER": return "text-danger bg-red-50 border-red-100";
-            case "WARNING": return "text-warning bg-yellow-50 border-yellow-100";
-            default: return "text-safe bg-green-50 border-green-100";
+            case "DANGER": return "text-red-400 bg-red-500/10 border-red-500/20";
+            case "WARNING": return "text-yellow-400 bg-yellow-500/10 border-yellow-500/20";
+            default: return "text-emerald-400 bg-emerald-500/10 border-emerald-500/20";
         }
     };
 
@@ -85,38 +86,47 @@ const GasDashboard = ({ id, device }) => { // Accept id and device as props
         return DefaultIcon;
     };
 
-    const SensorCard = ({ title, value, unit, defaultIcon: DefaultIcon, colorClass, type }) => {
+    const SensorCard = ({ title, value, unit, defaultIcon: DefaultIcon, colorClass, type, accentColor }) => {
         const Icon = getSensorIcon(type, DefaultIcon);
+
+        // Dynamic border color based on accent
+        const borderColor = accentColor === 'emerald' ? 'group-hover:border-emerald-500/50' :
+            accentColor === 'orange' ? 'group-hover:border-orange-500/50' :
+                accentColor === 'blue' ? 'group-hover:border-blue-500/50' : 'group-hover:border-violet-500/50';
+
         return (
-            <div
+            <motion.div
+                variants={{ hidden: { opacity: 0, y: 20 }, show: { opacity: 1, y: 0 } }}
                 onClick={() => handleSensorClick(type)}
-                className="card-premium p-6 flex flex-col items-center justify-center text-center cursor-pointer hover:ring-2 hover:ring-primary/20 transition-all group relative"
+                className={clsx("neo-card p-6 flex flex-col items-center justify-center text-center cursor-pointer transition-all duration-300 group relative border border-white/5", borderColor)}
             >
                 <div className="absolute top-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity">
-                    <div className="p-1.5 bg-gray-100 rounded-full text-gray-400 hover:text-primary hover:bg-white shadow-sm">
+                    <div className="p-1.5 bg-white/5 rounded-full text-slate-400 hover:text-white hover:bg-white/10 transition-colors">
                         <Edit3 size={14} />
                     </div>
                 </div>
-                <div className={clsx("p-4 rounded-full mb-4 transition-transform group-hover:scale-110 duration-300", colorClass)}>
+
+                <div className={clsx("p-4 rounded-2xl mb-4 transition-transform group-hover:scale-110 duration-300 shadow-lg", colorClass)}>
                     <Icon size={32} />
                 </div>
-                <h3 className="text-secondary text-sm font-medium uppercase tracking-wide mb-1">{title}</h3>
-                <div className="text-3xl font-bold text-primary">
-                    {value ?? "--"} <span className="text-lg text-secondary font-normal">{unit}</span>
+
+                <h3 className="text-slate-400 text-xs font-bold uppercase tracking-widest mb-1">{title}</h3>
+                <div className="text-3xl font-bold text-white flex items-baseline gap-1">
+                    {value ?? "--"} <span className="text-lg text-slate-500 font-medium">{unit}</span>
                 </div>
-            </div>
+            </motion.div>
         );
     };
 
     const CustomTooltip = ({ active, payload, label }) => {
         if (active && payload && payload.length) {
             return (
-                <div className="bg-white/90 backdrop-blur-sm p-4 rounded-xl border border-slate-100 shadow-xl">
-                    <p className="text-xs text-secondary mb-2 font-medium">{new Date(label).toLocaleTimeString()}</p>
+                <div className="bg-[#020617]/90 backdrop-blur-md p-4 rounded-xl border border-white/10 shadow-xl">
+                    <p className="text-xs text-slate-400 mb-2 font-medium">{new Date(label).toLocaleTimeString()}</p>
                     {payload.map((entry, index) => (
                         <div key={index} className="flex items-center gap-2 mb-1 last:mb-0">
                             <div className="w-2 h-2 rounded-full" style={{ backgroundColor: entry.color }}></div>
-                            <span className="text-sm font-semibold text-primary">
+                            <span className="text-sm font-bold text-white">
                                 {entry.name}: {Number(entry.value).toFixed(1)}
                             </span>
                         </div>
@@ -127,59 +137,73 @@ const GasDashboard = ({ id, device }) => { // Accept id and device as props
         return null;
     };
 
+    const container = {
+        hidden: { opacity: 0 },
+        show: {
+            opacity: 1,
+            transition: { staggerChildren: 0.1 }
+        }
+    };
+
     return (
-        <div>
+        <motion.div
+            variants={container}
+            initial="hidden"
+            animate="show"
+            className="space-y-8"
+        >
             {/* Header Section */}
-            <div className="flex flex-col xl:flex-row justify-between items-start xl:items-center mb-8 gap-6 animate-fade-in-up">
+            <motion.div variants={{ hidden: { opacity: 0, y: -20 }, show: { opacity: 1, y: 0 } }} className="flex flex-col xl:flex-row justify-between items-start xl:items-center gap-6">
                 <div>
-                    <h1 className="text-3xl font-bold text-primary flex items-center gap-3 tracking-tight">
+                    <h1 className="text-3xl font-bold text-white flex items-center gap-3 tracking-tight">
                         {id}
                         {latest && (
-                            <span className={clsx("text-xs px-3 py-1 rounded-full border bg-white/50 backdrop-blur font-bold shadow-sm", getStatusColor(latest.status))}>
+                            <span className={clsx("text-xs px-3 py-1 rounded-full border font-bold shadow-[0_0_15px_rgba(0,0,0,0.3)]", getStatusColor(latest.status))}>
                                 {latest.status}
                             </span>
                         )}
                     </h1>
-                    <p className="text-secondary mt-1 font-medium">Real-time gas & environment monitoring</p>
+                    <p className="text-slate-400 mt-1 font-medium flex items-center gap-2">
+                        <Activity size={16} className="text-violet-400" />
+                        Real-time gas & environment monitoring
+                    </p>
                 </div>
 
                 <div className="flex flex-col items-end gap-3 w-full xl:w-auto">
-                    <div className="text-sm text-secondary font-medium bg-white px-3 py-1 rounded-full shadow-sm border border-slate-100">
-                        Last updated: {latest ? new Date(latest.timestamp).toLocaleTimeString() : "--:--:--"}
+                    <div className="text-xs font-bold text-slate-400 bg-white/5 px-3 py-1.5 rounded-full border border-white/5 uppercase tracking-wider">
+                        Last updated: <span className="text-white ml-2">{latest ? new Date(latest.timestamp).toLocaleTimeString() : "--:--:--"}</span>
                     </div>
                     {device && (
-                        <div className="bg-white p-1 rounded-xl border border-slate-200 shadow-sm w-full md:w-auto flex items-center gap-2 pr-4 transition-all hover:shadow-md">
-                            <div className="bg-slate-50 px-3 py-2 rounded-lg border-r border-slate-100">
-                                <p className="text-[10px] text-secondary font-bold uppercase tracking-wider">Device Token</p>
+                        <div className="bg-white/5 p-1 rounded-xl border border-white/10 w-full md:w-auto flex items-center gap-2 pr-4 transition-all hover:bg-white/10 group">
+                            <div className="bg-white/5 px-3 py-2 rounded-lg border-r border-white/5">
+                                <p className="text-[10px] text-slate-400 font-bold uppercase tracking-wider">Device Token</p>
                             </div>
                             <div className="flex items-center gap-2 flex-1 min-w-0">
-                                <Key size={14} className="text-accent shrink-0" />
-                                <code className="text-xs font-mono text-primary select-all truncate">{device.device_token}</code>
+                                <Key size={14} className="text-violet-400 shrink-0" />
+                                <code className="text-xs font-mono text-white select-all truncate opacity-80 group-hover:opacity-100 transition-opacity">{device.device_token}</code>
                             </div>
                             <button
                                 onClick={copyToClipboard}
-                                className="p-1.5 hover:bg-slate-100 rounded-lg transition-colors text-secondary hover:text-primary relative group"
+                                className="p-1.5 hover:bg-white/10 rounded-lg transition-colors text-slate-400 hover:text-white relative"
                                 title="Copy"
                             >
-                                {copied ? <Check size={16} className="text-green-500" /> : <Copy size={16} />}
-                                <span className="absolute -top-8 left-1/2 -translate-x-1/2 bg-slate-800 text-white text-[10px] py-1 px-2 rounded opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none whitespace-nowrap">
-                                    Copy Token
-                                </span>
+                                {copied ? <Check size={16} className="text-emerald-400" /> : <Copy size={16} />}
                             </button>
                         </div>
                     )}
                 </div>
-            </div>
+            </motion.div>
 
             {/* Sensor Grid */}
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
                 <SensorCard
                     title="Gas Level"
                     value={latest?.gas ? Number(latest.gas).toFixed(0) : null}
                     unit="ppm"
                     defaultIcon={Wind}
                     type="Gas"
-                    colorClass="bg-gradient-to-br from-gray-50 to-gray-100 text-gray-700 ring-1 ring-gray-200/50"
+                    accentColor="violet"
+                    colorClass="bg-violet-500/20 text-violet-400 shadow-[0_0_20px_rgba(139,92,246,0.15)]"
                 />
                 <SensorCard
                     title="Temperature"
@@ -187,7 +211,8 @@ const GasDashboard = ({ id, device }) => { // Accept id and device as props
                     unit="°C"
                     defaultIcon={Thermometer}
                     type="Temperature"
-                    colorClass="bg-gradient-to-br from-orange-50 to-orange-100 text-orange-600 ring-1 ring-orange-200/50"
+                    accentColor="orange"
+                    colorClass="bg-orange-500/20 text-orange-400 shadow-[0_0_20px_rgba(251,146,60,0.15)]"
                 />
                 <SensorCard
                     title="Humidity"
@@ -195,7 +220,8 @@ const GasDashboard = ({ id, device }) => { // Accept id and device as props
                     unit="%"
                     defaultIcon={Droplets}
                     type="Humidity"
-                    colorClass="bg-gradient-to-br from-blue-50 to-blue-100 text-blue-600 ring-1 ring-blue-200/50"
+                    accentColor="blue"
+                    colorClass="bg-blue-500/20 text-blue-400 shadow-[0_0_20px_rgba(96,165,250,0.15)]"
                 />
                 <SensorCard
                     title="Distance"
@@ -203,7 +229,8 @@ const GasDashboard = ({ id, device }) => { // Accept id and device as props
                     unit="cm"
                     defaultIcon={Activity}
                     type="Distance"
-                    colorClass="bg-gradient-to-br from-purple-50 to-purple-100 text-purple-600 ring-1 ring-purple-200/50"
+                    accentColor="emerald"
+                    colorClass="bg-emerald-500/20 text-emerald-400 shadow-[0_0_20px_rgba(16,185,129,0.15)]"
                 />
             </div>
 
@@ -216,46 +243,49 @@ const GasDashboard = ({ id, device }) => { // Accept id and device as props
             />
 
             {/* Charts */}
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-                <div className="card-premium p-6 hover:shadow-lg transition-shadow duration-300">
+            <motion.div variants={{ hidden: { opacity: 0 }, show: { opacity: 1 } }} className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+                <div className="neo-card p-6 h-[400px] flex flex-col">
                     <div className="flex justify-between items-center mb-6">
-                        <h3 className="text-lg font-bold text-primary flex items-center gap-2">
-                            <div className="w-2 h-6 bg-accent rounded-full"></div>
+                        <h3 className="text-lg font-bold text-white flex items-center gap-2">
+                            <div className="w-1.5 h-6 bg-violet-500 rounded-full shadow-[0_0_10px_rgba(139,92,246,0.5)]"></div>
                             Gas Trends
                         </h3>
+                        <div className="p-2 bg-white/5 rounded-lg text-slate-400">
+                            <ArrowUpRight size={18} />
+                        </div>
                     </div>
-                    <div className="h-[300px] w-full">
+                    <div className="flex-1 w-full min-h-0">
                         <ResponsiveContainer width="100%" height="100%">
                             <AreaChart data={readings}>
                                 <defs>
                                     <linearGradient id="colorGas" x1="0" y1="0" x2="0" y2="1">
-                                        <stop offset="5%" stopColor="#2d3436" stopOpacity={0.1} />
-                                        <stop offset="95%" stopColor="#2d3436" stopOpacity={0} />
+                                        <stop offset="5%" stopColor="#8b5cf6" stopOpacity={0.3} />
+                                        <stop offset="95%" stopColor="#8b5cf6" stopOpacity={0} />
                                     </linearGradient>
                                 </defs>
-                                <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#f1f2f6" />
+                                <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="rgba(255,255,255,0.05)" />
                                 <XAxis
                                     dataKey="timestamp"
                                     tickFormatter={(t) => new Date(t).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
-                                    stroke="#94a3b8"
-                                    tick={{ fontSize: 11, fontWeight: 500 }}
+                                    stroke="#475569"
+                                    tick={{ fontSize: 11, fontWeight: 500, fill: '#64748b' }}
                                     tickLine={false}
                                     axisLine={false}
                                     dy={10}
                                 />
                                 <YAxis
-                                    stroke="#94a3b8"
-                                    tick={{ fontSize: 11, fontWeight: 500 }}
+                                    stroke="#475569"
+                                    tick={{ fontSize: 11, fontWeight: 500, fill: '#64748b' }}
                                     tickLine={false}
                                     axisLine={false}
                                     dx={-10}
                                 />
-                                <Tooltip content={<CustomTooltip />} cursor={{ stroke: '#cbd5e1', strokeWidth: 1, strokeDasharray: '4 4' }} />
+                                <Tooltip content={<CustomTooltip />} cursor={{ stroke: 'rgba(139,92,246,0.5)', strokeWidth: 1, strokeDasharray: '4 4' }} />
                                 <Area
                                     type="monotone"
                                     dataKey="gas"
                                     name="Gas Level"
-                                    stroke="#2d3436"
+                                    stroke="#8b5cf6"
                                     strokeWidth={3}
                                     fillOpacity={1}
                                     fill="url(#colorGas)"
@@ -266,49 +296,52 @@ const GasDashboard = ({ id, device }) => { // Accept id and device as props
                     </div>
                 </div>
 
-                <div className="card-premium p-6 hover:shadow-lg transition-shadow duration-300">
+                <div className="neo-card p-6 h-[400px] flex flex-col">
                     <div className="flex justify-between items-center mb-6">
-                        <h3 className="text-lg font-bold text-primary flex items-center gap-2">
-                            <div className="w-2 h-6 bg-orange-500 rounded-full"></div>
+                        <h3 className="text-lg font-bold text-white flex items-center gap-2">
+                            <div className="w-1.5 h-6 bg-orange-500 rounded-full shadow-[0_0_10px_rgba(249,115,22,0.5)]"></div>
                             Environment
                         </h3>
+                        <div className="p-2 bg-white/5 rounded-lg text-slate-400">
+                            <Activity size={18} />
+                        </div>
                     </div>
-                    <div className="h-[300px] w-full">
+                    <div className="flex-1 w-full min-h-0">
                         <ResponsiveContainer width="100%" height="100%">
                             <AreaChart data={readings}>
                                 <defs>
                                     <linearGradient id="colorTemp" x1="0" y1="0" x2="0" y2="1">
-                                        <stop offset="5%" stopColor="#e17055" stopOpacity={0.1} />
-                                        <stop offset="95%" stopColor="#e17055" stopOpacity={0} />
+                                        <stop offset="5%" stopColor="#f97316" stopOpacity={0.3} />
+                                        <stop offset="95%" stopColor="#f97316" stopOpacity={0} />
                                     </linearGradient>
                                     <linearGradient id="colorHum" x1="0" y1="0" x2="0" y2="1">
-                                        <stop offset="5%" stopColor="#0984e3" stopOpacity={0.1} />
-                                        <stop offset="95%" stopColor="#0984e3" stopOpacity={0} />
+                                        <stop offset="5%" stopColor="#3b82f6" stopOpacity={0.3} />
+                                        <stop offset="95%" stopColor="#3b82f6" stopOpacity={0} />
                                     </linearGradient>
                                 </defs>
-                                <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#f1f2f6" />
+                                <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="rgba(255,255,255,0.05)" />
                                 <XAxis
                                     dataKey="timestamp"
                                     tickFormatter={(t) => new Date(t).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
-                                    stroke="#94a3b8"
-                                    tick={{ fontSize: 11, fontWeight: 500 }}
+                                    stroke="#475569"
+                                    tick={{ fontSize: 11, fontWeight: 500, fill: '#64748b' }}
                                     tickLine={false}
                                     axisLine={false}
                                     dy={10}
                                 />
                                 <YAxis
-                                    stroke="#94a3b8"
-                                    tick={{ fontSize: 11, fontWeight: 500 }}
+                                    stroke="#475569"
+                                    tick={{ fontSize: 11, fontWeight: 500, fill: '#64748b' }}
                                     tickLine={false}
                                     axisLine={false}
                                     dx={-10}
                                 />
-                                <Tooltip content={<CustomTooltip />} cursor={{ stroke: '#cbd5e1', strokeWidth: 1, strokeDasharray: '4 4' }} />
+                                <Tooltip content={<CustomTooltip />} cursor={{ stroke: 'rgba(255,255,255,0.2)', strokeWidth: 1, strokeDasharray: '4 4' }} />
                                 <Area
                                     type="monotone"
                                     dataKey="temperature"
                                     name="Temp (°C)"
-                                    stroke="#e17055"
+                                    stroke="#f97316"
                                     strokeWidth={3}
                                     fillOpacity={1}
                                     fill="url(#colorTemp)"
@@ -317,7 +350,7 @@ const GasDashboard = ({ id, device }) => { // Accept id and device as props
                                     type="monotone"
                                     dataKey="humidity"
                                     name="Humidity (%)"
-                                    stroke="#0984e3"
+                                    stroke="#3b82f6"
                                     strokeWidth={3}
                                     fillOpacity={1}
                                     fill="url(#colorHum)"
@@ -326,8 +359,8 @@ const GasDashboard = ({ id, device }) => { // Accept id and device as props
                         </ResponsiveContainer>
                     </div>
                 </div>
-            </div>
-        </div>
+            </motion.div>
+        </motion.div>
     );
 };
 
