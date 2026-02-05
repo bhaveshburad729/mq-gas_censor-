@@ -56,7 +56,7 @@
   }
 
   .neo-btn-primary {
-    @apply neo-btn bg-violet-600 text-white hover:bg-violet-500;
+    @apply px-6 py-2 rounded-xl font-medium transition-all duration-300 active:scale-95 bg-violet-600 text-white hover:bg-violet-500;
     box-shadow: 0 0 0 transparent;
     /* Default state */
   }
