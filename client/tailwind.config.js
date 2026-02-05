@@ -7,16 +7,16 @@ export default {
   theme: {
     extend: {
       colors: {
-        background: "#FBFBFB", // Off-white
-        surface: "#ffffff",
-        primary: "#171123", // Deep Dark Purple/Black
-        secondary: "#636e72", // Muted gray (Keeping for neutrality)
+        background: "#171123", // Deep Dark
+        surface: "#1D162B", // Slightly lighter for cards
+        primary: "#FBFBFB", // White text
+        secondary: "#d1d5db", // Light gray subtext
         accent: "#6F2DBD", // Brand Purple
         highlight: "#A663CC", // Lavender
         warning: "#fdcb6e",
         danger: "#ff7675",
         safe: "#55efc4",
-        border: "#e0e0e0", // Slightly darker for contrast on FBFBFB
+        border: "#2d2640", // Dark purple border
       },
       fontFamily: {
         sans: ['Inter', 'sans-serif'],
