@@ -11,16 +11,30 @@ router = APIRouter(
 
 @router.post("/register", response_model=schemas.UserResponse)
 def register(user: schemas.UserCreate, db: Session = Depends(database.get_db)):
-    db_user = db.query(models.User).filter(models.User.email == user.email).first()
-    if db_user:
-        raise HTTPException(status_code=400, detail="Email already registered")
-    
-    hashed_password = auth.get_password_hash(user.password)
-    new_user = models.User(email=user.email, hashed_password=hashed_password)
-    db.add(new_user)
-    db.commit()
-    db.refresh(new_user)
-    return new_user
+    try:
+        print(f"Attempting to register user: {user.email}")
+        db_user = db.query(models.User).filter(models.User.email == user.email).first()
+        if db_user:
+            raise HTTPException(status_code=400, detail="Email already registered")
+        
+        print("Hashing password...")
+        hashed_password = auth.get_password_hash(user.password)
+        print("Creating user object...")
+        new_user = models.User(email=user.email, hashed_password=hashed_password, full_name=user.full_name, phone_number=user.phone_number)
+        print("Adding to DB...")
+        db.add(new_user)
+        db.commit()
+        db.refresh(new_user)
+        print("User registered successfully.")
+        return new_user
+    except ValueError as ve:
+        print(f"Validation error registering user: {ve}")
+        raise HTTPException(status_code=400, detail=str(ve))
+    except Exception as e:
+        import traceback
+        traceback.print_exc()
+        print(f"ERROR registering user: {e}")
+        raise e
 
 @router.post("/login", response_model=schemas.Token)
 def login(form_data: OAuth2PasswordRequestForm = Depends(), db: Session = Depends(database.get_db)):

@@ -12,6 +12,7 @@ if not SQLALCHEMY_DATABASE_URL:
     # Fallback or error if you prefer
     SQLALCHEMY_DATABASE_URL = "postgresql://postgres:password@localhost/sensegrid"
 
+print(f"Connecting to database: {SQLALCHEMY_DATABASE_URL.split('@')[-1]}") # Log DB host/name safely
 engine = create_engine(SQLALCHEMY_DATABASE_URL)
 SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
 

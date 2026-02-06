@@ -12,6 +12,7 @@ app = FastAPI(title="TRONIX365 Indianiiot")
 origins = [
     "http://localhost:5173", # Vite default
     "http://localhost:3000",
+    "http://192.168.1.7:5173",
     "https://indianiiot.com",
     "https://www.indianiiot.com",
     "https://mq-gas-censor-sensegrid-api-tronix.onrender.com",
